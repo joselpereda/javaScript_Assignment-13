@@ -1,10 +1,14 @@
 // REWRITTEN TO TAKE ADVANTAGE OF CLOSURES
-const $ = (id) => document.getElementById(id)
+const $ = function (id) {
+    return document.getElementById(id);
+};
 
 const createSlideshow = function () {
     // PRIVATE VARIABLES AND FUNCTIONS
-    let timer
-    let play = true    
+    let timer;
+    let play = true;
+    let speed = 2000;
+
     let nodes = { image: null, caption: null }
     let img = { cache: [], counter: 0 }
     
@@ -33,6 +37,13 @@ const createSlideshow = function () {
 
     // PUBLIC METHODS THAT HAVE ACCESS TO PRIVATE VARIABLES AND FUNCTIONS
     return {
+        getSpeed: function () {
+            return speed;
+        },
+        setSpeed: function (promptSpeed) {
+            speed = promptSpeed;
+            return this;
+        },
         loadImages: function (slides) {
             for (let i = 0; i < slides.length; i++) {
                 let image = new Image()
@@ -47,7 +58,7 @@ const createSlideshow = function () {
                 nodes.image = arguments[0]
                 nodes.caption = arguments[1]
             }
-            timer = setInterval(displayNextImage, 2000)
+            timer = setInterval(displayNextImage, speed)
             return this
         },
         createToggleHandler: function () {
@@ -85,4 +96,14 @@ window.addEventListener('load', () => {
     slideshow.loadImages(slides).startSlideShow($('image'), $('caption'))
     // PAUSE THE SLIDESHOW
     $('play_pause').onclick = slideshow.createToggleHandler()
+
+    $('speed').addEventListener('click', () => {
+        let promptSpeed = parseInt(prompt('The current speed is ' + slideshow.getSpeed() + ' milliseconds. Please enter new speed'), 10);
+
+        if (promptSpeed < 0 || isNaN(promptSpeed)) {
+            prompt('Please enter a valid value for speed');
+            return false;
+        }
+        slideshow.setSpeed(promptSpeed).startSlideShow();
+    });
 })
